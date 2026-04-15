@@ -322,24 +322,6 @@ body {
   outline-offset: 2px;
 }
 
-.status-select.done {
-  background-color: #dcfce7;
-  color: #166534;
-  border-color: #bbf7d0;
-}
-
-.status-select.pending {
-  background-color: #fef3c7;
-  color: #92400e;
-  border-color: #fcd34d;
-}
-
-.status-select.in-progress {
-  background-color: #dbeafe;
-  color: #1d4ed8;
-  border-color: #bfdbfe;
-}
-
 .todo-description-wrap {
   margin-top: 0;
 }
@@ -352,7 +334,40 @@ body {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
+}
+
+#todo-time-remaining.is-overdue {
+  color: #b91c1c;
+}
+
+.todo-card.is-done [data-testid="test-todo-description"],
+.todo-card.is-done #todo-due-date,
+.todo-card.is-done .tag,
+.todo-card.is-done .meta-label {
+  color: #6b7280;
+}
+
+.todo-card.is-done .tag {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.overdue-indicator {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border: 1px solid #fecaca;
+  border-radius: 999px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.overdue-indicator[hidden] {
+  display: none;
 }
 
 .expand-toggle {
@@ -405,5 +420,40 @@ button:focus {
 
   .actions button {
     width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .todo-card {
+    max-width: 640px;
+  }
+
+  .edit-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .edit-form .edit-field:first-child,
+  .edit-form .edit-field:nth-child(2),
+  .edit-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 40px 24px;
+  }
+
+  .todo-card {
+    max-width: 720px;
+  }
+
+  #todo-title,
+  [data-testid="test-todo-description"],
+  #todo-due-date,
+  #todo-time-remaining {
+    overflow-wrap: anywhere;
   }
 }

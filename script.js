@@ -5,6 +5,7 @@ const timeRemaining = document.getElementById("todo-time-remaining");
 const dueDateElement = document.getElementById("todo-due-date");
 const editBtn = document.getElementById("edit-btn");
 const deleteBtn = document.getElementById("delete-btn");
+const todoCard = document.querySelector('[data-testid="test-todo-card"]');
 
 const editForm = document.querySelector('[data-testid="test-todo-edit-form"]');
 const saveBtn = document.getElementById("save-btn");
@@ -29,6 +30,103 @@ const minute = 60 * 1000;
 const hour = 60 * minute;
 const day = 24 * hour;
 const dueDate = new Date(Date.now() + 3 * day + 12 * hour);
+
+const overdueIndicator = document.getElementById("todo-overdue-indicator");
+let timeRemainingIntervalId = null;
+
+
+function getTimeRemainingState(due, now) {
+  const diffMs = due.getTime() - now.getTime();
+  const absMs = Math.abs(diffMs);
+
+  if (absMs < minute) {
+    return {
+      text: "Due now!",
+      isOverdue: false
+    };
+  }
+
+  if (diffMs > 0) {
+    const days = Math.floor(diffMs / day);
+    const hours = Math.floor(diffMs / hour);
+    const minutes = Math.floor(diffMs / minute);
+
+    if (days >= 1) {
+      return {
+        text: `Due in ${days} day${days === 1 ? "" : "s"}`,
+        isOverdue: false
+      };
+    }
+
+    if (hours >= 1) {
+      return {
+        text: `Due in ${hours} hour${hours === 1 ? "" : "s"}`,
+        isOverdue: false
+      };
+    }
+
+    return {
+      text: `Due in ${minutes} minute${minutes === 1 ? "" : "s"}`,
+      isOverdue: false
+    };
+  }
+
+  const overdueDays = Math.floor(absMs / day);
+  const overdueHours = Math.floor(absMs / hour);
+  const overdueMinutes = Math.floor(absMs / minute);
+
+  if (overdueDays >= 1) {
+    return {
+      text: `Overdue by ${overdueDays} day${overdueDays === 1 ? "" : "s"}`,
+      isOverdue: true
+    };
+  }
+
+  if (overdueHours >= 1) {
+    return {
+      text: `Overdue by ${overdueHours} hour${overdueHours === 1 ? "" : "s"}`,
+      isOverdue: true
+    };
+  }
+
+  return {
+    text: `Overdue by ${overdueMinutes} minute${overdueMinutes === 1 ? "" : "s"}`,
+    isOverdue: true
+  };
+}
+
+function updateTimeRemaining() {
+  if (statusControl.value === "Done") {
+    timeRemaining.textContent = "Completed";
+    timeRemaining.classList.remove("is-overdue");
+    overdueIndicator.hidden = true;
+    return;
+  }
+
+  const now = new Date();
+  const timeState = getTimeRemainingState(dueDate, now);
+
+  timeRemaining.textContent = timeState.text;
+  timeRemaining.classList.toggle("is-overdue", timeState.isOverdue);
+  overdueIndicator.hidden = !timeState.isOverdue;
+}
+
+function startTimeRemainingUpdates() {
+  if (timeRemainingIntervalId !== null) {
+    return;
+  }
+
+  timeRemainingIntervalId = setInterval(updateTimeRemaining, 30000);
+}
+
+function stopTimeRemainingUpdates() {
+  if (timeRemainingIntervalId === null) {
+    return;
+  }
+
+  clearInterval(timeRemainingIntervalId);
+  timeRemainingIntervalId = null;
+}
 
 function setDescriptionExpanded(isExpanded) {
   collapsibleSection.classList.toggle("is-collapsed", !isExpanded);
@@ -60,20 +158,26 @@ expandToggle.addEventListener("click", function () {
 function setStatus(newStatus) {
   statusControl.value = newStatus;
   statusControl.className = "badge status status-select";
+  todoCard.classList.toggle("is-done", newStatus === "Done");
 
   if (newStatus === "Done") {
     statusControl.classList.add("done");
     checkbox.checked = true;
     title.classList.add("completed");
+    stopTimeRemainingUpdates();
   } else if (newStatus === "Pending") {
     statusControl.classList.add("pending");
     checkbox.checked = false;
     title.classList.remove("completed");
+    startTimeRemainingUpdates();
   } else {
     statusControl.classList.add("in-progress");
     checkbox.checked = false;
     title.classList.remove("completed");
+    startTimeRemainingUpdates();
   }
+
+  updateTimeRemaining();
 }
 
 function enterEditMode() {
@@ -88,11 +192,13 @@ function enterEditMode() {
 
   editForm.hidden = false;
   editBtn.hidden = true;
+  editTitleInput.focus();
 }
 
 function exitEditMode() {
   editForm.hidden = true;
   editBtn.hidden = false;
+  editBtn.focus();
 }
 
 function saveEditedContent() {
@@ -127,43 +233,6 @@ function formatDueDate(date) {
   });
 }
 
-function getTimeRemainingText(due, now) {
-  const diffMs = due.getTime() - now.getTime();
-  const absMs = Math.abs(diffMs);
-
-  if (absMs < minute) {
-    return "Due now!";
-  }
-
-  if (diffMs > 0) {
-    const days = Math.floor(diffMs / day);
-    const hours = Math.floor(diffMs / hour);
-    const minutes = Math.floor(diffMs / minute);
-
-    if (days > 1) return `Due in ${days} days`;
-    if (days === 1) return "Due tomorrow";
-    if (hours >= 1) return `Due in ${hours} hour${hours === 1 ? "" : "s"}`;
-    return `Due in ${minutes} minute${minutes === 1 ? "" : "s"}`;
-  }
-
-  const overdueDays = Math.floor(absMs / day);
-  const overdueHours = Math.floor(absMs / hour);
-  const overdueMinutes = Math.floor(absMs / minute);
-
-  if (overdueDays >= 1) {
-    return `Overdue by ${overdueDays} day${overdueDays === 1 ? "" : "s"}`;
-  }
-  if (overdueHours >= 1) {
-    return `Overdue by ${overdueHours} hour${overdueHours === 1 ? "" : "s"}`;
-  }
-  return `Overdue by ${overdueMinutes} minute${overdueMinutes === 1 ? "" : "s"}`;
-}
-
-function updateTimeRemaining() {
-  const now = new Date();
-  timeRemaining.textContent = getTimeRemainingText(dueDate, now);
-}
-
 function updateDueDateText() {
   dueDateElement.setAttribute("datetime", dueDate.toISOString());
   timeRemaining.setAttribute("datetime", dueDate.toISOString());
@@ -175,21 +244,20 @@ statusControl.addEventListener("change", function () {
 });
 
 checkbox.addEventListener("change", function () {
-  setStatus(checkbox.checked ? "Done" : "In Progress");
-  updateTimeRemaining();
+  setStatus(checkbox.checked ? "Done" : "Pending");
 });
 
 editBtn.addEventListener("click", enterEditMode);
 saveBtn.addEventListener("click", saveEditedContent);
 cancelBtn.addEventListener("click", exitEditMode);
 
+saveBtn.tabIndex = 6;
+cancelBtn.tabIndex = 7;
+
 deleteBtn.addEventListener("click", function () {
   alert("Delete clicked");
 });
 
 updateDueDateText();
-updateTimeRemaining();
-setStatus(statusControl.value);
 initDescriptionCollapse();
-
-setInterval(updateTimeRemaining, 30000);
+setStatus(statusControl.value);
