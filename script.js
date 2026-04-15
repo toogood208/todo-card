@@ -16,10 +16,46 @@ const editDueDateInput = document.getElementById("edit-due-date");
 const description = document.querySelector('[data-testid="test-todo-description"]');
 const priorityBadge = document.querySelector('[data-testid="test-todo-priority"]');
 
+const collapsibleSection = document.querySelector(
+  '[data-testid="test-todo-collapsible-section"]'
+);
+const expandToggle = document.querySelector(
+  '[data-testid="test-todo-expand-toggle"]'
+);
+
+const MAX_DESCRIPTION_LENGTH = 140;
+
 const minute = 60 * 1000;
 const hour = 60 * minute;
 const day = 24 * hour;
 const dueDate = new Date(Date.now() + 3 * day + 12 * hour);
+
+function setDescriptionExpanded(isExpanded) {
+  collapsibleSection.classList.toggle("is-collapsed", !isExpanded);
+  expandToggle.textContent = isExpanded ? "Collapse" : "Expand";
+  expandToggle.setAttribute("aria-expanded", String(isExpanded));
+}
+
+function initDescriptionCollapse() {
+  const descriptionText = description.textContent.trim();
+  const isLongDescription = descriptionText.length > MAX_DESCRIPTION_LENGTH;
+
+  if (!isLongDescription) {
+    collapsibleSection.classList.remove("is-collapsed");
+    expandToggle.hidden = true;
+    expandToggle.textContent = "Expand";
+    expandToggle.setAttribute("aria-expanded", "false");
+    return;
+  }
+
+  expandToggle.hidden = false;
+  setDescriptionExpanded(false);
+}
+
+expandToggle.addEventListener("click", function () {
+  const isExpanded = expandToggle.getAttribute("aria-expanded") === "true";
+  setDescriptionExpanded(!isExpanded);
+});
 
 function setStatus(newStatus) {
   statusControl.value = newStatus;
@@ -62,6 +98,7 @@ function exitEditMode() {
 function saveEditedContent() {
   title.textContent = editTitleInput.value.trim();
   description.textContent = editDescriptionInput.value.trim();
+  initDescriptionCollapse();
 
   const newPriority = editPrioritySelect.value;
   priorityBadge.textContent =
@@ -153,5 +190,6 @@ deleteBtn.addEventListener("click", function () {
 updateDueDateText();
 updateTimeRemaining();
 setStatus(statusControl.value);
+initDescriptionCollapse();
 
 setInterval(updateTimeRemaining, 30000);

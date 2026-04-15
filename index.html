@@ -30,11 +30,21 @@
             Finalize onboarding dashboard mockups
           </h2>
 
-          <p data-testid="test-todo-description">
-            Review layout spacing, polish the card interactions, and prepare the
-            handoff-ready design notes for the product team before the stakeholder
-            check-in.
-          </p>
+          <div class="todo-description-wrap">
+            <div class="todo-collapsible is-collapsed" id="todo-collapsible-section"
+              data-testid="test-todo-collapsible-section">
+              <p id="todo-description" data-testid="test-todo-description">
+                Review layout spacing, polish the card interactions, and prepare the
+                handoff-ready design notes for the product team before the stakeholder
+                check-in.
+              </p>
+            </div>
+
+            <button type="button" class="expand-toggle" id="todo-expand-toggle" data-testid="test-todo-expand-toggle"
+              aria-controls="todo-collapsible-section" aria-expanded="false" hidden>
+              Expand
+            </button>
+          </div>
         </div>
 
         <div class="todo-toggle-wrap">

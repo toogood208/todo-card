@@ -340,6 +340,43 @@ body {
   border-color: #bfdbfe;
 }
 
+.todo-description-wrap {
+  margin-top: 0;
+}
+
+.todo-collapsible {
+  min-width: 0;
+}
+
+.todo-collapsible.is-collapsed [data-testid="test-todo-description"] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.expand-toggle {
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.expand-toggle:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.expand-toggle:focus {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 
 
 input:focus,
