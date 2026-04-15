@@ -1,15 +1,10 @@
 const checkbox = document.getElementById("todo-complete-toggle");
 const title = document.getElementById("todo-title");
-const status = document.getElementById("todo-status");
+const statusControl = document.getElementById("todo-status");
 const timeRemaining = document.getElementById("todo-time-remaining");
 const dueDateElement = document.getElementById("todo-due-date");
 const editBtn = document.getElementById("edit-btn");
 const deleteBtn = document.getElementById("delete-btn");
-
-const minute = 60 * 1000;
-const hour = 60 * minute;
-const day = 24 * hour;
-const dueDate = new Date(Date.now() + 3 * day + 12 * hour);
 
 const editForm = document.querySelector('[data-testid="test-todo-edit-form"]');
 const saveBtn = document.getElementById("save-btn");
@@ -18,18 +13,42 @@ const editTitleInput = document.getElementById("edit-title");
 const editDescriptionInput = document.getElementById("edit-description");
 const editPrioritySelect = document.getElementById("edit-priority");
 const editDueDateInput = document.getElementById("edit-due-date");
-const editDescriptionTextarea = document.getElementById("edit-description");
 const description = document.querySelector('[data-testid="test-todo-description"]');
 const priorityBadge = document.querySelector('[data-testid="test-todo-priority"]');
 
+const minute = 60 * 1000;
+const hour = 60 * minute;
+const day = 24 * hour;
+const dueDate = new Date(Date.now() + 3 * day + 12 * hour);
+
+function setStatus(newStatus) {
+  statusControl.value = newStatus;
+  statusControl.className = "badge status status-select";
+
+  if (newStatus === "Done") {
+    statusControl.classList.add("done");
+    checkbox.checked = true;
+    title.classList.add("completed");
+  } else if (newStatus === "Pending") {
+    statusControl.classList.add("pending");
+    checkbox.checked = false;
+    title.classList.remove("completed");
+  } else {
+    statusControl.classList.add("in-progress");
+    checkbox.checked = false;
+    title.classList.remove("completed");
+  }
+}
 
 function enterEditMode() {
   editTitleInput.value = title.textContent.trim();
   editDescriptionInput.value = description.textContent.trim();
   editPrioritySelect.value = priorityBadge.textContent.trim().toLowerCase();
 
-  const local = new Date(dueDate.getTime() - dueDate.getTimezoneOffset() * minute)
-  editDueDateInput.value = local.toISOString().slice(0, 16);
+  const localDate = new Date(
+    dueDate.getTime() - dueDate.getTimezoneOffset() * minute
+  );
+  editDueDateInput.value = localDate.toISOString().slice(0, 16);
 
   editForm.hidden = false;
   editBtn.hidden = true;
@@ -41,13 +60,14 @@ function exitEditMode() {
 }
 
 function saveEditedContent() {
-
   title.textContent = editTitleInput.value.trim();
   description.textContent = editDescriptionInput.value.trim();
 
   const newPriority = editPrioritySelect.value;
-  priorityBadge.textContent = newPriority.charAt(0).toUpperCase() + newPriority.slice(1);
+  priorityBadge.textContent =
+    newPriority.charAt(0).toUpperCase() + newPriority.slice(1);
   priorityBadge.className = `badge priority ${newPriority}`;
+  priorityBadge.setAttribute("aria-label", `Priority: ${priorityBadge.textContent}`);
 
   const newDueDate = new Date(editDueDateInput.value);
   if (!isNaN(newDueDate.getTime())) {
@@ -57,15 +77,7 @@ function saveEditedContent() {
   }
 
   exitEditMode();
-
-
 }
-
-editBtn.addEventListener("click", enterEditMode);
-
-saveBtn.addEventListener("click", saveEditedContent);
-
-cancelBtn.addEventListener("click", exitEditMode);
 
 function formatDueDate(date) {
   return date.toLocaleString("en-US", {
@@ -121,25 +133,18 @@ function updateDueDateText() {
   dueDateElement.textContent = `Due ${formatDueDate(dueDate)}`;
 }
 
-checkbox.addEventListener("change", function () {
-  if (checkbox.checked) {
-    title.classList.add("completed");
-    status.textContent = "Done";
-    status.classList.add("done");
-    status.setAttribute("aria-label", "Status: Done");
-  } else {
-    title.classList.remove("completed");
-    status.textContent = "In Progress";
-    status.classList.remove("done");
-    status.setAttribute("aria-label", "Status: In Progress");
-  }
+statusControl.addEventListener("change", function () {
+  setStatus(statusControl.value);
+});
 
+checkbox.addEventListener("change", function () {
+  setStatus(checkbox.checked ? "Done" : "In Progress");
   updateTimeRemaining();
 });
 
-editBtn.addEventListener("click", function () {
-  console.log("edit clicked");
-});
+editBtn.addEventListener("click", enterEditMode);
+saveBtn.addEventListener("click", saveEditedContent);
+cancelBtn.addEventListener("click", exitEditMode);
 
 deleteBtn.addEventListener("click", function () {
   alert("Delete clicked");
@@ -147,5 +152,6 @@ deleteBtn.addEventListener("click", function () {
 
 updateDueDateText();
 updateTimeRemaining();
+setStatus(statusControl.value);
 
 setInterval(updateTimeRemaining, 30000);

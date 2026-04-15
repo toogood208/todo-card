@@ -18,9 +18,12 @@
               High
             </span>
 
-            <span class="badge status" data-testid="test-todo-status" aria-label="Status: In Progress" id="todo-status">
-              In Progress
-            </span>
+            <select id="todo-status" class="badge status status-select" data-testid="test-todo-status-control"
+              id="todo-status" aria-label="Task Status">
+              <option value="Pending">Pending</option>
+              <option value="In Progress" selected>In Progress</option>
+              <option value="Done">Done</option>
+            </select>
           </div>
 
           <h2 id="todo-title" data-testid="test-todo-title">
@@ -88,7 +91,7 @@
           </textarea>
 
         </div>
-        <div class ="edit-field">
+        <div class="edit-field">
           <label for="edit-priority">Priority</label>
           <select id="edit-priority" data-testid="test-todo-edit-priority-select">
             <option value="low">Low</option>
@@ -98,8 +101,7 @@
         </div>
         <div class="edit-field">
           <label for="edit-due-date">Due Date</label>
-          <input type="datetime-local" 
-          id="edit-due-date" data-testid="test-todo-edit-due-date-input" />
+          <input type="datetime-local" id="edit-due-date" data-testid="test-todo-edit-due-date-input" />
         </div>
         <div class="edit-actions">
           <button type="button" data-testid="test-todo-save-button" id="save-btn">Save</button>
@@ -108,15 +110,15 @@
       </div>
 
 
-        <div class="actions">
-          <button type="button" data-testid="test-todo-edit-button" aria-label="Edit task" id="edit-btn">
-            Edit
-          </button>
+      <div class="actions">
+        <button type="button" data-testid="test-todo-edit-button" aria-label="Edit task" id="edit-btn">
+          Edit
+        </button>
 
-          <button type="button" data-testid="test-todo-delete-button" aria-label="Delete task" id="delete-btn">
-            Delete
-          </button>
-        </div>
+        <button type="button" data-testid="test-todo-delete-button" aria-label="Delete task" id="delete-btn">
+          Delete
+        </button>
+      </div>
     </article>
   </main>
 
