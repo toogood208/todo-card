@@ -11,6 +11,62 @@ const hour = 60 * minute;
 const day = 24 * hour;
 const dueDate = new Date(Date.now() + 3 * day + 12 * hour);
 
+const editForm = document.querySelector('[data-testid="test-todo-edit-form"]');
+const saveBtn = document.getElementById("save-btn");
+const cancelBtn = document.getElementById("cancel-btn");
+const editTitleInput = document.getElementById("edit-title");
+const editDescriptionInput = document.getElementById("edit-description");
+const editPrioritySelect = document.getElementById("edit-priority");
+const editDueDateInput = document.getElementById("edit-due-date");
+const editDescriptionTextarea = document.getElementById("edit-description");
+const description = document.querySelector('[data-testid="test-todo-description"]');
+const priorityBadge = document.querySelector('[data-testid="test-todo-priority"]');
+
+
+function enterEditMode() {
+  editTitleInput.value = title.textContent.trim();
+  editDescriptionInput.value = description.textContent.trim();
+  editPrioritySelect.value = priorityBadge.textContent.trim().toLowerCase();
+
+  const local = new Date(dueDate.getTime() - dueDate.getTimezoneOffset() * minute)
+  editDueDateInput.value = local.toISOString().slice(0, 16);
+
+  editForm.hidden = false;
+  editBtn.hidden = true;
+}
+
+function exitEditMode() {
+  editForm.hidden = true;
+  editBtn.hidden = false;
+}
+
+function saveEditedContent() {
+
+  title.textContent = editTitleInput.value.trim();
+  description.textContent = editDescriptionInput.value.trim();
+
+  const newPriority = editPrioritySelect.value;
+  priorityBadge.textContent = newPriority.charAt(0).toUpperCase() + newPriority.slice(1);
+  priorityBadge.className = `badge priority ${newPriority}`;
+
+  const newDueDate = new Date(editDueDateInput.value);
+  if (!isNaN(newDueDate.getTime())) {
+    dueDate.setTime(newDueDate.getTime());
+    updateDueDateText();
+    updateTimeRemaining();
+  }
+
+  exitEditMode();
+
+
+}
+
+editBtn.addEventListener("click", enterEditMode);
+
+saveBtn.addEventListener("click", saveEditedContent);
+
+cancelBtn.addEventListener("click", exitEditMode);
+
 function formatDueDate(date) {
   return date.toLocaleString("en-US", {
     month: "short",
